@@ -42,9 +42,9 @@ def deal_data(train):
     scatter_data = pd.get_dummies(scatter_data)
     scatter_data['sex'] = train_sex.apply(lambda x:0 if x == ' Male' else 1)
     # 如果包含这个列，将其删除。
-    if 'native_country_Holand-Netherlands' in scatter_data.columns:
-        print(scatter_data['native_country_Holand-Netherlands'].value_counts())
-        scatter_data = scatter_data.drop(['native_country_Holand-Netherlands'],axis=1)
+    if 'native_country_ Holand-Netherlands' in scatter_data.columns:
+        print(scatter_data['native_country_ Holand-Netherlands'].value_counts())
+        scatter_data = scatter_data.drop(['native_country_ Holand-Netherlands'],axis=1)
     train_data = pd.concat([scatter_data,continuation_data],axis=1)
 # 归一化处理
     train_X = (train_data - train_data.mean()) / train_data.std()
@@ -63,13 +63,14 @@ def get_model(train_X,train_y):
             class_1.append(list(train_X[i]))
         else:
             class_0.append(list(train_X[i]))
-    sigma_0 = np.zeros((107,107))
-    sigma_1 = np.zeros((107,107))
+    sigma_0 = np.zeros((106,106))
+    sigma_1 = np.zeros((106,106))
     class_0 = np.array(class_0)
     class_1 = np.array(class_1)
     mean_0 = np.mean(class_0,axis=0)
     mean_1 = np.mean(class_1,axis=0)
 #求解 sigma
+
     for i in range(class_0.shape[0]):
         sigma_0 += np.dot(np.transpose([class_0[i] - mean_0]),[class_0[i] - mean_0])
     for i in range(class_1.shape[0]):
@@ -85,9 +86,9 @@ def get_model(train_X,train_y):
     print("Class 0:" ,N0)
     print("Class 1:",N1)
     #根据生成公式矩阵计算模型参数
-    w = np.dot(mean_1-mean_0,np.linalg.inv(sigma))
-    b = np.dot(np.dot(mean_1,np.linalg.inv(sigma)),np.transpose(mean_1)) * (-0.5)
-    + np.dot(np.dot(mean_0,np.linalg.inv(sigma)),np.transpose(mean_0)) * 0.5 +math.log(N1/N0)
+    w = np.dot(mean_1-mean_0,np.linalg.pinv(sigma))
+    b = np.dot(np.dot(mean_1,np.linalg.pinv(sigma)),np.transpose(mean_1)) * (-0.5)
+    + np.dot(np.dot(mean_0,np.linalg.pinv(sigma)),np.transpose(mean_0)) * 0.5 +math.log(N1/N0)
     print(b)
     return w,b
 def p(x,w,b):
@@ -97,11 +98,11 @@ def p(x,w,b):
     # sigmiod函数
     p = 1 / (1+np.exp(result))
     return p
-train = pd.read_csv("data/train.csv")
+train = pd.read_csv("data\\train.csv")
 train_X,train_y = deal_data(train)
 w,b = get_model(train_X,train_y)
 #读取 test 并预处理
-test_data = pd.read_csv("data/test.csv")
+test_data = pd.read_csv("data\\test.csv")
 test_data['income'] = 0
 test_X,test_y = deal_data(test_data)
 model = p(test_X.T,w,b)
@@ -117,9 +118,9 @@ for i in model:
         model_kind.append(' <=50k')
 print(True_count,False_count)
 # # 保存预测结果到文件中
-source_file = 'data/test.csv'
+source_file = 'data\\test.csv'
 predict_file = pd.read_csv(source_file,low_memory=False)
 predict_file['income'] = model_kind
 predict_file['probability'] = model
 #保存列到新的 csv 文件，index=0 表示不为每一行自动编号，header=1 表示行首有字段名称
-predict_file.to_csv('data/predict_mine.csv', index=0, header=1)
+predict_file.to_csv('data\\predict.csv', index=0, header=1)

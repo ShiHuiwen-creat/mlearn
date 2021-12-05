@@ -24,7 +24,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
-path = 'F:\\git\\python\\test-case-generator\\src\\test\\example_4\\data\\mnist.npz'
+# path = 'F:\\git\\python\\test-case-generator\\src\\test\\example_4\\data\\mnist.npz'
+path = 'data/mnist.npz'
 f = np.load(path)
 train_images,train_labels = f['x_train'],f['y_train']
 test_images ,test_labels = f['x_test'],f['y_test']
@@ -59,3 +60,5 @@ model.summary()
 model.fit(X_train, train_labels, epochs=200, batch_size=128, verbose=True, validation_split=0.2)
 test_loss, test_acc = model.evaluate(X_test, test_labels, verbose=True)
 print('test_loss', test_loss, '\n', 'test_acc', test_acc)
+
+# 接下来使用cnn做实验
